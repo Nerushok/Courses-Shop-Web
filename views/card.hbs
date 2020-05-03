@@ -18,7 +18,10 @@
                     <td>{{title}}</td>
                     <td>{{count}}</td>
                     <td>
-                        <button class="btn red js-remove" data-id="{{_id}}">Delete</button>
+                        <button
+                                class="btn red js-remove"
+                                data-id="{{_id}}"
+                                data-csrf="{{@root.csurf}}">Delete</button>
                     </td>
                 </tr>
             {{/each}}
@@ -28,7 +31,9 @@
         </table>
 
         <p><strong>Price:</strong> <span class="price">{{price}}</span></p>
+
         <form action="/orders" method="POST">
+            <input type="hidden" name="_csrf" value="{{csurf}}">
             <button class="btn" type="submit">Order</button>
         </form>
     {{else}}
