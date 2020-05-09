@@ -8,6 +8,9 @@
         </div>
 
         <div id="login" class="col s6 offset-s3">
+            {{#if loginError}}
+                <p class="alert">{{loginError}}</p>
+            {{/if}}
             <h1>Enter to shop</h1>
             <form action="/auth/login" method="POST">
                 <div class="input-field">
@@ -29,6 +32,9 @@
         </div>
 
         <div id="registration" class="col s6 offset-s3">
+            {{#if registerError}}
+                <p class="alert">{{registerError}}</p>
+            {{/if}}
             <h1>Register in our shop</h1>
             <form action="/auth/registration" method="POST">
                 <div class="input-field">

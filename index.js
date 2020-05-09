@@ -1,5 +1,6 @@
 const path = require('path');
 const csurf = require('csurf');
+const flash = require('connect-flash');
 const mongoose = require('mongoose');
 const express = require('express');
 const exphbs = require('express-handlebars');
@@ -44,6 +45,7 @@ app.use(session({
     store: mongoStore
 }));
 app.use(csurf())
+app.use(flash())
 app.use(varMiddleware);
 app.use(userMiddleware);
 

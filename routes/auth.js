@@ -7,7 +7,9 @@ const router = Router();
 router.get('/login', async (req, res) => {
     res.render('auth/login', {
         title: 'Login',
-        isLogin: true
+        isLogin: true,
+        loginError: req.flash('loginError'),
+        registerError: req.flash('registerError'),
     });
 });
 
@@ -37,6 +39,7 @@ router.post('/login', async (req, res) => {
                 res.redirect('/auth/login#login')
             }
         } else {
+            req.flash('loginError', 'Email or password is wrong.')
             res.redirect('/auth/login#login')
         }
     } catch (e) {
@@ -51,6 +54,7 @@ router.post('/registration', async (req, res) => {
         const candidate = await User.findOne({email: email});
 
         if (candidate) {
+            req.flash('registerError', 'User with this email is already exists.')
             res.redirect('/auth/login#register');
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
