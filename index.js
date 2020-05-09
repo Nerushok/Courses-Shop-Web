@@ -16,9 +16,7 @@ const cardRoutes = require('./routes/card');
 const ordersRoutes = require('./routes/orders');
 const varMiddleware = require('./middleware/variables');
 const userMiddleware = require('./middleware/user');
-
-const DB_PASSWORD = 'rdiCGoWexki4M0fb';
-const DB_URI = `mongodb+srv://serhio:${DB_PASSWORD}@cluster0-bvk2k.gcp.mongodb.net/shop?&w=majority`;
+const keys = require('./keys/index')
 
 const app = express();
 
@@ -29,7 +27,7 @@ const hbs = exphbs.create({
 });
 const mongoStore = new MongoStore({
     collection: 'sessions',
-    uri: DB_URI
+    uri: keys.DB_URI
 });
 
 app.engine('hbs', hbs.engine);
@@ -39,7 +37,7 @@ app.set('views', 'views');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({extended: true}));
 app.use(session({
-    secret: 'some secret value',
+    secret: keys.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     store: mongoStore
@@ -61,7 +59,7 @@ const PORT = process.env.PORT || 3000;
 
 async function start() {
     try {
-        await mongoose.connect(DB_URI, {
+        await mongoose.connect(keys.DB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useFindAndModify: false
