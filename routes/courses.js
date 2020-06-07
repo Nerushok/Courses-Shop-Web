@@ -10,6 +10,7 @@ router.get('/', async (req, res) => {
     res.render('courses', {
         title: 'Courses',
         isCourses: true,
+        userId: req.user._id ? req.user._id.toString() : null,
         courses
     });
 });
@@ -29,16 +30,29 @@ router.get('/:id/edit', authMiddleware, async (req, res) => {
         return res.redirect('/')
     }
 
-    const course = await Course.findById(req.params.id);
+    try {
+        const course = await Course.findById(req.params.id);
 
-    res.render('course-edit', {
-        title: `Edit ${course.title}`,
-        course
-    });
+        if (course.userId.toString() !== req.user._id.toString()) {
+            return res.redirect('/')
+        }
+
+        res.render('course-edit', {
+            title: `Edit ${course.title}`,
+            course
+        });
+    } catch (e) {
+        console.log(e)
+    }
 });
 
 router.post('/edit', authMiddleware, async (req, res) => {
     const {id} = req.body;
+
+    if (id.toString() !== req.user._id.toString()) {
+        return res.redirect('/')
+    }
+
     delete req.body.id;
     await Course.findByIdAndUpdate(id, req.body);
     res.redirect('/courses');
@@ -47,7 +61,10 @@ router.post('/edit', authMiddleware, async (req, res) => {
 router.post('/remove', authMiddleware, async (req, res) => {
     try {
         const {id} = req.body;
-        await Course.deleteOne({_id: id});
+        await Course.deleteOne({
+            _id: id,
+            userId: req.user._id
+        });
         res.redirect('/courses');
     } catch (e) {
         console.log(e)
