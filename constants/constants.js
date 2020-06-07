@@ -1,4 +1,5 @@
-module.exports = {
-    BASE_DOMAIN: 'https://localhost:3000',
-    SERVICE_EMAIL: 'trusted.products.group@gmail.com'
+if (process.env.NODE_ENV === 'production') {
+    module.exports = require('./constants.prod')
+} else {
+    module.exports = require('./constants.dev')
 }
