@@ -1,1 +1,3 @@
 /node_modules/*
+/constants/constants.dev.js
+/keys/keys.dev.js
