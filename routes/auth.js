@@ -1,12 +1,14 @@
 const {Router} = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
+const {validationResult} = require('express-validator')
 const User = require('../models/user');
 const nodemailer = require('nodemailer')
 const sendgrid = require('nodemailer-sendgrid-transport')
 const keys = require('../keys/index')
 const registrationEmail = require('../emails/registration')
 const resetPasswordEmail = require('../emails/reset')
+const {registerValidators} = require('../utils/validators')
 const router = Router();
 
 const transporter = nodemailer.createTransport(sendgrid({
@@ -48,7 +50,7 @@ router.post('/login', async (req, res) => {
         }
     } catch (e) {
         console.log(e);
-        req.statusCode(500).json({errorCode: 500});
+        req.status(500).json({errorCode: 500});
     }
 });
 
@@ -59,14 +61,21 @@ router.get('/registration', async (req, res) => {
     });
 });
 
-router.post('/registration', async (req, res) => {
+router.post('/registration', registerValidators, async (req, res) => {
     try {
-        const {name, email, password, confirmPassword} = req.body;
+        const {name, email, password} = req.body;
+
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            req.flash('registerError', errors.array()[0].msg)
+            return res.status(422).redirect('/auth/login#registration')
+        }
+
         const candidate = await User.findOne({email: email});
 
         if (candidate) {
             req.flash('registerError', 'User with this email is already exists.')
-            res.redirect('/auth/login#register');
+            res.redirect('/auth/login#registration');
         } else {
             const hashPassword = await bcrypt.hash(password, 10);
             const user = new User({email: email, password: hashPassword, name: name});
@@ -76,7 +85,7 @@ router.post('/registration', async (req, res) => {
         }
     } catch (e) {
         console.log(e);
-        res.statusCode(500).json({errorCode: 500});
+        res.status(500).json({errorCode: 500});
     }
 });
 
@@ -117,7 +126,7 @@ router.post('/reset', async (req, res) => {
         }
     } catch (e) {
         console.log(e)
-        res.statusCode(500).json({errorCode: 500})
+        res.status(500).json({errorCode: 500})
     }
 })
 
